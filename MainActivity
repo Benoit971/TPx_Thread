@@ -1,0 +1,107 @@
+package com.example.tp_thread;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+
+public class MainActivity extends AppCompatActivity {
+
+    //private Handler mainHandler;
+    private int REFRESH=1;
+    private Button btnEnvoieTraitement;
+    private ProgressBar progressBar;
+    private EditText intext;
+    private int a=0;
+
+    //Bon Pour que ca fonctionne, faire un choix entre la partie commentée en gris SEULEMENT (exo1) ou avec la partie exercice 2 SEULEMENT
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        btnEnvoieTraitement=findViewById(R.id.button);
+        progressBar=findViewById(R.id.progressbar);
+        intext=findViewById(R.id.inNom);
+
+/*  EXERCICE 1 AVEC LA PREMIERE FACON DE FAIRE UN THREAD AVEC UN HANDLER
+
+    mainHandler= new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(Message msg){
+                if(msg.what==REFRESH)
+                {
+                    a+=1;
+                    progressBar.setProgress(a);
+                    //modification des views de l'activité
+                    //possibilité de récupérer une valeur
+                    // émise par le thread secondaire et transmise via msg(attribut arg1)
+                }
+            }
+        };
+        btnEnvoieTraitement.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Thread thread2= new Thread(new Runnable(){
+                    @Override
+                    public void run() {
+                        for(int i=0; i<=100000; i++) {
+                            try {
+                                Thread.sleep(1000);
+                                //exécution de la tâche longue
+                                Message msg = new Message();
+                                //msg.arg1+=1;
+                                msg.what = REFRESH;
+                                mainHandler.sendMessage(msg);
+                                Thread.sleep(100);
+
+                                //pour utiliser arg1, la valeur doit être un entier
+
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+                thread2.start();
+            }
+        });*/
+
+
+        // ***EXERCICE 2 POUR FAIRE UN THREAD AVEC runOnUIThread***
+        btnEnvoieTraitement.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Thread calcul = new Thread() {
+                    public void run() {
+                        for(int i=0;i<=100000;i++) {
+                            try {
+                                Thread.sleep(1000);
+                                //execution de la tache longue
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // on peut modifier ici les view de l'activité du thread principal pour
+                                        // informer l'utilisateur du résultat, de la progression etc...
+                                        a+=1;
+                                        progressBar.setProgress(a);
+                                    }
+                                });
+                            }catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                };
+                calcul.start();
+            }
+        });
+    }
+
+}
